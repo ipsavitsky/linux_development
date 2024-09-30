@@ -14,9 +14,8 @@
       devShells.${system} = {
         default = pkgs.mkShell {
           packages = with pkgs; [
-            cmake
+            ncurses
             gcc
-            boost
             gnumake
           ];
         };
