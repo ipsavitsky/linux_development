@@ -1,0 +1,3 @@
+#+title: Linux development homework repo
+
+Course url: https://uneex.org/LecturesCMC/LinuxApplicationDevelopment2024
