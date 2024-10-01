@@ -57,11 +57,34 @@ int main(int argc, char *argv[]) {
         /* mvwaddstr(frame, 0, (int)((COLS - 2*DX - 5) / 2), "Border: "); */
         wrefresh(frame);
 
-        win = newwin(LINES - 2*DY - 2, COLS - 2*DX-2, DY+1, DX+1);
+
+	int nlines = LINES - 2*DY - 2;
+	int ncols = COLS - 2*DX - 2;
+        win = newwin(nlines, ncols, DY+1, DX+1);
         keypad(win, TRUE);
-        scrollok (win, TRUE);
-        while((c = wgetch(win)) != 27)
-                wprintw(win, "%d: %s\n", c, keyname(c));
+        scrollok(win, TRUE);
+
+	int offset = 0;
+	do {
+	  int print_length = (cntr < nlines) ? cntr : nlines;
+	  for (int i = offset; i < print_length + offset; ++i) {
+	    wprintw(win, "%s", lines[i]);
+	  }
+
+	  switch (c) {
+	  case KEY_UP:
+	    offset = offset <= 0 ? 0 : offset - 1;
+	    break;
+	  case KEY_DOWN:
+	    offset = (nlines + offset) >= cntr ? offset : offset + 1;
+	    break;
+	  }
+	} while ((c = wgetch(win)) != 27);
+
+	for (int i = 0; i < cntr; ++i) {
+	  free(lines[i]);
+	}
+	
         delwin(win);
         delwin(frame);
         endwin();

@@ -10,11 +10,11 @@
       pkgs = import nixpkgs { inherit system; };
     in
     {
-      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
       devShells.${system} = {
         default = pkgs.mkShell {
           packages = with pkgs; [
             ncurses
+            clang
             gcc
             gnumake
           ];

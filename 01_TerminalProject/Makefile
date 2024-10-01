@@ -1,5 +1,8 @@
+# CC=clang
+# CCFLAGS=-fsanitize=address -g
+
 Show: Show.c
-	cc Show.c -o Show -lncurses
+	$(CC) Show.c $(CCFLAGS) -o Show -lncurses
 
 clean:
 	rm -f *~ *.o Show a.out
