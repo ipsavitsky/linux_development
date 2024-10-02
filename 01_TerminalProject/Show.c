@@ -6,6 +6,13 @@
 #define DX 7
 #define DY 3
 
+void print_file_lines(WINDOW *win, int screen_lines, char** lines, int file_lines, int offset) {
+  int print_length = (file_lines < screen_lines) ? file_lines : screen_lines;
+  for (int i = offset; i < print_length + offset; ++i) {
+    wprintw(win, "%s", lines[i]);
+  }
+}
+
 int main(int argc, char *argv[]) {
         WINDOW *frame, *win;
         int c = 0;
@@ -54,7 +61,6 @@ int main(int argc, char *argv[]) {
 
         frame = newwin(LINES - 2*DY, COLS - 2*DX, DY, DX);
         box(frame, 0, 0);
-        /* mvwaddstr(frame, 0, (int)((COLS - 2*DX - 5) / 2), "Border: "); */
         wrefresh(frame);
 
 
@@ -65,12 +71,11 @@ int main(int argc, char *argv[]) {
         scrollok(win, TRUE);
 
 	int offset = 0;
-	do {
-	  int print_length = (cntr < nlines) ? cntr : nlines;
-	  for (int i = offset; i < print_length + offset; ++i) {
-	    wprintw(win, "%s", lines[i]);
-	  }
 
+	print_file_lines(win, nlines, lines, cntr, offset);
+	
+	while ((c = wgetch(win)) != 27) {
+	  
 	  switch (c) {
 	  case KEY_UP:
 	    offset = offset <= 0 ? 0 : offset - 1;
@@ -79,7 +84,9 @@ int main(int argc, char *argv[]) {
 	    offset = (nlines + offset) >= cntr ? offset : offset + 1;
 	    break;
 	  }
-	} while ((c = wgetch(win)) != 27);
+	  
+          print_file_lines(win, nlines, lines, cntr, offset);
+	}
 
 	for (int i = 0; i < cntr; ++i) {
 	  free(lines[i]);
