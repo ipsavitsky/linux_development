@@ -1,0 +1,53 @@
+trash := "*.o *~ o.* *.log"
+generates := "prog-a prog prog-so liboutput_static.a liboutput.so"
+cflags := "-fPIC"
+
+default: prog prog-a prog-so
+
+prog_o:
+    cc prog.c {{cflags}} -c -o prog.o
+
+const_o:
+    cc const.c {{cflags}} -c -o const.o
+
+fun_o:
+    cc fun.c {{cflags}} -c -o fun.o
+
+liboutput_static_a: const_o fun_o
+    ar rv liboutput_static.a const.o
+    ar rv liboutput_static.a fun.o
+
+liboutput_so: const_o fun_o
+    cc fun.o const.o {{cflags}} -o liboutput.so -shared
+
+prog: prog_o const_o fun_o
+    cc prog.o const.o fun.o {{cflags}} -o prog
+
+prog-a: prog_o liboutput_static_a
+    cc prog.o liboutput_static.a {{cflags}} -o prog-a
+
+prog-so: prog_o liboutput_so
+    cc prog.o -L. -loutput {{cflags}} -o prog-so
+
+test: prog prog-a prog-so
+    ./prog > prog.log 2>&1
+    ./prog-a > prog-a.log 2>&1
+    LD_LIBRARY_PATH=`pwd` ./prog-so > prog-so.log 2>&1
+
+    ./prog a >> prog.log
+    ./prog-a a >> prog-a.log
+    LD_LIBRARY_PATH=`pwd` ./prog-so a >> prog-so.log
+
+    ./prog a b c >> prog.log
+    ./prog-a a b c >> prog-a.log
+    LD_LIBRARY_PATH=`pwd` ./prog-so a b c >> prog-so.log
+
+    diff prog.log prog-a.log
+    diff prog-a.log prog-so.log
+
+
+clean:
+    rm -f {{trash}}
+
+distclean: clean
+    rm -f {{generates}}

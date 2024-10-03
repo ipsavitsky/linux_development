@@ -1,0 +1,97 @@
+version: '3'
+
+tasks:
+  default:
+    deps: [prog, prog-a, prog-so]
+
+  prog.o:
+    cmds:
+      - cc prog.c -c -o prog.o
+    sources:
+      - prog.c
+    generates:
+      - prog.o
+
+  const.o:
+    cmds:
+      - cc const.c -c -o const.o
+    sources:
+      - const.c
+    generates:
+      - const.o
+
+  fun.o:
+    cmds:
+      - cc fun.c -c -o fun.o
+    sources:
+      - fun.c
+    generates:
+      - fun.o
+
+  liboutput_static.a:
+    deps: [const.o, fun.o]
+    cmds:
+      - ar rv liboutput_static.a const.o
+      - ar rv liboutput_static.a fun.o
+    sources: [const.o, fun.o]
+    generates:
+      - liboutput_static.a
+
+  liboutput.so:
+    deps: [const.o, fun.o]
+    cmds:
+      - cc fun.o const.o -o liboutput.so -shared
+    sources: [const.o, fun.o]
+    generates:
+      - liboutput.so
+
+  prog:
+    deps: [prog.o, const.o, fun.o]
+    cmds:
+      - cc prog.o const.o fun.o -o prog
+    sources: [prog.o, const.o, fun.o]
+    generates:
+      - prog
+
+  prog-a:
+    deps: [prog.o, liboutput_static.a]
+    cmds:
+      - cc prog.o liboutput_static.a -o prog-a
+    sources: [prog.o, liboutput_static.a]
+    generates:
+      - prog-a
+
+  prog-so:
+    deps: [prog.o, liboutput.so]
+    cmds:
+      - cc prog.o -L. -loutput -o prog-so
+    sources: [prog.o, liboutput.so]
+    generates:
+      - prog-so
+
+  test:
+    deps: [prog, prog-a, prog-so]
+    cmds:
+      - ./prog > prog.log 2>&1
+      - ./prog-a > prog-a.log 2>&1
+      - LD_LIBRARY_PATH=`pwd` ./prog-so > prog-so.log 2>&1
+
+      - ./prog a >> prog.log
+      - ./prog-a a >> prog-a.log
+      - LD_LIBRARY_PATH=`pwd` ./prog-so a >> prog-so.log
+
+      - ./prog a b c >> prog.log
+      - ./prog-a a b c >> prog-a.log
+      - LD_LIBRARY_PATH=`pwd` ./prog-so a b c >> prog-so.log
+
+      - diff prog.log prog-a.log
+      - diff prog-a.log prog-so.log
+
+  clean:
+    cmds:
+      - rm -f *.o *~ o.* *.log
+
+  distclean:
+    deps: [clean]
+    cmds:
+      - rm -f prog-a prog prog-so liboutput_static.a liboutput.so

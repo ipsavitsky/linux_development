@@ -17,6 +17,9 @@
             clang
             gcc
             gnumake
+            just
+            go-task
+            doit
           ];
         };
       };
