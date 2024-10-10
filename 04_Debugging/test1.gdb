@@ -4,6 +4,7 @@ set pagination off
 break 6 if i % 5 == 0
 
 command 1
+    echo out>
     printf "start=%d stop=%d step=%d i=%d\n", start, stop, step, i
     continue
 end
