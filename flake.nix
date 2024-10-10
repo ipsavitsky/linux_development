@@ -19,7 +19,7 @@
             gnumake
             just
             go-task
-            doit
+            gdb
           ];
         };
       };
