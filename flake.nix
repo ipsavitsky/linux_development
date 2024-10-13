@@ -14,12 +14,13 @@
         default = pkgs.mkShell {
           packages = with pkgs; [
             ncurses
-            clang
             gcc
             gnumake
             just
             go-task
             gdb
+            ccls
+            nodePackages.bash-language-server
           ];
         };
       };
