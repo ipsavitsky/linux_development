@@ -20,7 +20,9 @@
             go-task
             gdb
             ccls
+
             nodePackages.bash-language-server
+            shfmt
           ];
         };
       };

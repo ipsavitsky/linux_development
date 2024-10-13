@@ -1,5 +1,6 @@
 This is useful in general
 .direnv
+.ccls-cache
 
 # This is for task 1
 01_TerminalProject/Show
