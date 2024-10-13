@@ -1,0 +1,21 @@
+This is useful in general
+.direnv
+
+# This is for task 1
+01_TerminalProject/Show
+
+# This is for task 2
+02_Multifile/*.o
+02_Multifile/liboutput.so
+02_Multifile/liboutput_static.a
+02_Multifile/prog
+02_Multifile/prog-a
+02_Multifile/prog-so
+02_Multifile/.task
+02_Multifile/*.log
+
+# This is for task 4
+04_Debugging/*.o
+04_Debugging/range
+04_Debugging/test1
+04_Debugging/test2
