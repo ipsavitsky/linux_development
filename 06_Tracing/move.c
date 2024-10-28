@@ -7,13 +7,8 @@
 
 #define BUF_SIZE 1024
 
-#define SAFE(call)                                                             \
-  if ((call) == -1) {                                                          \
-    fprintf(stderr, "%s\n", strerror(errno));                                  \
-    close(infile_fd);                                                          \
-    close(outfile_fd);                                                         \
-    exit(errno);                                                               \
-  }
+// in this program we assume that close() always works correctly when given the
+// correct arguments (a descriptor that we know is open)
 
 int main(int argc, char *argv[]) {
   if (argc < 3) {
@@ -25,21 +20,42 @@ int main(int argc, char *argv[]) {
   char *out_filename = argv[2];
 
   int infile_fd, outfile_fd;
-  SAFE(infile_fd = open(in_filename, O_RDONLY, 0));
-  SAFE(outfile_fd = open(out_filename, O_WRONLY | O_CREAT | O_TRUNC, 0666));
+  if ((infile_fd = open(in_filename, O_RDONLY, 0)) == -1) {
+    perror("open infile");
+    exit(errno);
+  }
+  if ((outfile_fd = open(out_filename, O_WRONLY | O_CREAT | O_TRUNC, 0666)) ==
+      -1) {
+    perror("open outfile");
+    close(infile_fd);
+    exit(errno);
+  }
 
   char buf[BUF_SIZE];
   int ret = 0;
   while ((ret = read(infile_fd, buf, BUF_SIZE))) {
     if (ret == -1) {
-      fprintf(stderr, "%s", strerror(errno));
+      perror("reading infile");
+      close(infile_fd);
+      close(outfile_fd);
+      unlink(out_filename);
       exit(errno);
     }
-    SAFE(write(outfile_fd, buf, ret));
+
+    if (write(outfile_fd, buf, ret) == -1) {
+      perror("writing outfile");
+      close(infile_fd);
+      close(outfile_fd);
+      unlink(out_filename);
+      exit(errno);
+    }
   }
 
-  SAFE(close(infile_fd));
-  SAFE(close(outfile_fd));
-  SAFE(unlink(in_filename));
+  close(infile_fd);
+  close(outfile_fd);
+  if (unlink(in_filename) == -1) {
+    perror("unlink");
+    exit(errno);
+  }
   return 0;
 }
