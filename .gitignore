@@ -20,3 +20,8 @@ This is useful in general
 04_Debugging/range
 04_Debugging/test1
 04_Debugging/test2
+
+# This is for task 6
+06_Tracing/move
+06_Tracing/test_files/*.so
+06_Tracing/test_files/destination
